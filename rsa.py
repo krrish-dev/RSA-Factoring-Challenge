@@ -6,7 +6,7 @@ from sys import argv, exit, stderr
 
 def is_prime(n):
     """
-    Check if a number is prime.
+    Check if a number is prime ok.
     """
     if n < 2:
         return False
