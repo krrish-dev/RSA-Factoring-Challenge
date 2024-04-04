@@ -1,36 +1,38 @@
 #!/usr/bin/python3
+
 import math
 
 def print_factors(number):
-    i = 1
-    while i * i <= number:
-        if (number % i == 0):
-            fct = number // i
-            print("{:d}={:d}*{:d}".format(number, fct, i))
-            break
+    """
+    Prints the factorization of the given number in the format "n=p*q".
+    """
+    i = 2
+    sqrt_n = int(math.sqrt(number))
+    while i <= sqrt_n:
+        if number % i == 0:
+            q = number // i
+            print(f"{number}={q}*{i}")
+            return
         i += 1
-
+    print(f"{number}={number}*1")
 
 def main():
+    """
+    Main function to read numbers from a file and print their factorizations.
+    """
     from sys import argv, exit, stderr
 
     if len(argv) != 2:
         stderr.write("Usage: ./factors <file>\n")
-        exit()
+        exit(1)
 
     try:
-        f = open(argv[1], "r")
+        with open(argv[1], "r") as f:
+            for line in f:
+                number = int(line.strip())
+                print_factors(number)
     except FileNotFoundError:
-        stderr.write("Could not find file {}, not exist\n".format(argv[1]))
-    else:
-        while (True):
-            line = f.readline()
-            if (not line):
-                break
-            line = int(line)
-            print_factors(line)
-
-    f.close()
-
+        stderr.write(f"Could not find file {argv[1]}, it does not exist\n")
+        exit(1)
 
 main()

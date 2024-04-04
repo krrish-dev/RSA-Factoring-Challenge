@@ -1,72 +1,54 @@
 #!/usr/bin/python3
 
-import random
 import math
-
-def modular_pow(base, exponent, modulus):
-    result = 1
-    while (exponent > 0):
-        if (exponent % 2 != 0):
-            result = (result * base) % modulus
-        exponent = int(exponent / 2)
-        base = (base * base) % modulus
-    return result
+from sys import argv, exit, stderr
 
 
-def prime_divisor(n):
-    if (n == 1):
-        return n
-    if (n % 2 == 0):
-        return 2
-
-    x = (random.randint(0, 2) % (n - 2))
-    y = x
-    c = (random.randint(0, 1) % (n - 1))
-
-    d = 1
-    while (d == 1):
-        x = (modular_pow(x, 2, n) + c + n) % n
-
-        y = (modular_pow(y, 2, n) + c + n) % n
-        y = (modular_pow(y, 2, n) + c + n) % n
-
-        d = math.gcd(abs(x - y), n)
-
-        if (d == n):
-            return prime_divisor(n)
-    return d
+def is_prime(n):
+    """
+    Check if a number is prime.
+    """
+    if n < 2:
+        return False
+    for i in range(2, int(math.sqrt(n)) + 1):
+        if n % i == 0:
+            return False
+    return True
 
 
-def print_factors(number):
-    div = prime_divisor(number)
-    num = int(number / div)
-    if div >= num:
-        print("{:d}={:d}*{:d}".format(number, div, num))
-    else:
-        print("{:d}={:d}*{:d}".format(number, num, div))
-        
+def rsa_factors(n):
+    """
+    Find the prime factors p and q of n.
+    """
+    for i in range(2, int(math.sqrt(n)) + 1):
+        if n % i == 0:
+            q = n // i
+            if is_prime(i) and is_prime(q):
+                return i, q
+    return None, None
 
 
 def main():
-    from sys import argv, exit, stderr
-
     if len(argv) != 2:
-        stderr.write("Usage: ./factors <file>\n")
-        exit()
+        stderr.write("Usage: ./rsa <file>\n")
+        exit(1)
 
     try:
-        f = open(argv[1], "r")
+        with open(argv[1], "r") as f:
+            n = int(f.read().strip())
     except FileNotFoundError:
-        stderr.write("Could not find file {}, not exist\n".format(argv[1]))
+        stderr.write(f"Could not find file {argv[1]}, it does not exist\n")
+        exit(1)
+    except ValueError:
+        stderr.write("Invalid input: file must contain a single integer\n")
+        exit(1)
+
+    p, q = rsa_factors(n)
+    if p and q:
+        print(f"{n}={p}*{q}")
     else:
-        while (True):
-            line = f.readline()
-            if (not line):
-                break
-            line = int(line)
-            print_factors(line)
-    
-    f.close()
+        print(f"Could not find prime factors for {n}")
 
 
-main()
+if __name__ == "__main__":
+    main()
